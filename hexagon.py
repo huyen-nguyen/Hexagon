@@ -5,7 +5,6 @@ length = 15
 upper = " / \\"
 side = "|   "
 lower = " \\ /"
-hexg = [11,11]
 
 
 def draw_y_axis():
@@ -13,7 +12,7 @@ def draw_y_axis():
     print "\t"*6 + "  5" + "\t"*5 + "  10" + "\t"*4 + "  15  " + "\t" *4 + "  20" + "\t" * 4 + "  25" + "\t" * 4 + "  30  " + "\t" * 4 + "  35"
 
 
-def draw_hexagon():  # ---------------------------------------------------------------------------
+def draw_hexagon():  # ---------------------------  DRAW SIMPLE GRID  -----------------------------------
     print upper * width
     for i in range(length):
         if i % 2:
@@ -22,7 +21,7 @@ def draw_hexagon():  # ---------------------------------------------------------
             print side * (width + 1) + "\n" + lower * width + " \\"
 
 
-def draw_hexagon_with_axis():  # ------------------------------------------------------------------
+def draw_hexagon_with_axes():  # --------------------DRAW GRID WITH AXES-----------------------------------
     print ("\t|\t" + upper * width)
     for i in range(length):
         if i % 2:
@@ -33,41 +32,32 @@ def draw_hexagon_with_axis():  # -----------------------------------------------
     draw_y_axis()
 
 
-def color_single_hexagon():  # ----------------------COLOR------------------------------------------------------
-    for i in range(length):
-        if i == 0:
-            if i == length - hexg[1]:  # ----- MAIN ------
-                print ("\t|\t" + upper * (hexg[0] - 1) + " /*\\" + upper * (width - hexg[0]))
-            else:
-                print ("\t|\t" + upper * width)
+def color_hexagons():     # ----------------------COLOR----------------------------------------------
 
-        if i%2:
-            if i == length - hexg[1] - 1:    # ----- PREPARE ------
-                print (str(length - i) + "\t|\t  " + side * (width + 1) + "\n\t|\t /"
-                       + lower * (hexg[0] - 1) + "*\\ /" + lower * (width - hexg[0]))
+    # ---- Read from file, put into list of list  ---
+    with open("data.txt") as f:
+        lis = []
+        for line in f:
+            lis.append(list(map(int, line.split(","))))
 
-            elif i == length - hexg[1]:  # ----- MAIN ------
-                print (str(length - i) + "\t|\t  " + side * (hexg[0] - 1) + "|***" + side * (width - hexg[0] + 1) + "\n\t|\t /"
-                + lower * (hexg[0] - 1) + " \\*/" + lower * (width - hexg[0]))
+    sorted_list = sorted(lis, key=lambda x: x[0])  # Sort
 
-            else:
-                print (str(length - i) + "\t|\t  " + side * (width + 1) + "\n\t|\t /" + lower * width)  # y-axis
+    non_dup = []                # --- Remove duplicates ---
+    for value in sorted_list:
+        if value not in non_dup:
+            non_dup.append(value)
 
-        else:
-            if i == length - hexg[1] - 1:  # ----- PREPARE ------
-                print (str(length - i) + "\t|\t" + side * (width + 1) + "\n\t|\t"
-                   + lower * (hexg[0] - 1) + " \\ /*\\ /" + lower * (width - hexg[0] - 1) + " \\")
+    grouped_list = []           # ----- Group ----
+    for k in range(length + 1):
+        m = [k]
+        for e in non_dup:
+            if k == e[1]:
+                m.append(e[0])
+        grouped_list.append(m)
 
-            elif i == length - hexg[1]:  # ----- MAIN ------
-                print (str(length - i) + "\t|\t" + side * (hexg[0] - 1) + "|***" + side * (width - hexg[0] + 1) + "\n\t|\t"
-                       + lower * (hexg[0] - 1) + " \\*/" + lower * (width - hexg[0]) + " \\")
-            else:
-                print (str(length - i) + "\t|\t" + side * (width + 1) + "\n\t|\t" + lower * width + " \\")  # y-axis
+    grouped_list = [x for x in grouped_list if len(x) > 1]
+    print grouped_list
 
-    draw_y_axis()
-
-
-def color_hexagons():
     # ----- Sub functions ------
     def prep_even():
         screen[i] += side * (width + 1) + "\n\t|\t"
@@ -90,24 +80,6 @@ def color_hexagons():
             full[i] += lower * (hexa[j] - hexa[j - 1] - 1) + " \\*/"
         full[i] += lower * (width - hexa[-1])
 
-    # --------- READ from file, PUT into list of list  -----------
-    with open("data.txt") as f:
-        lis = []
-        for line in f:
-            lis.append(list(map(int, line.split(","))))
-
-    sorted_list = sorted(lis, key=lambda x: x[0])  # Sort
-
-    grouped_list = []           # ----- GROUP ----
-    for k in range(length + 1):
-        m = [k]
-        for e in sorted_list:
-            if k == e[1]:
-                m.append(e[0])
-        grouped_list.append(m)
-
-    grouped_list = [x for x in grouped_list if len(x) > 1]
-    # print grouped_list
     screen = []
     full = []
     # ----------------------- COLORING -------------------------
@@ -119,11 +91,12 @@ def color_hexagons():
         prep = 0
         m = 0  # main
 
-    # ---------------------- y-axis ----------------------------
+    # ------ y-axis --------
         if i % 2:
             print str(length - i) + "\t|\t ",
         elif i != 0:
             print str(length - i) + "\t|\t",
+            
     # ----------------------- SELECT ---------------------------
         for hexa in grouped_list:
             if i == length - hexa[0] - 1:  # ----- PREPARE -----
@@ -185,5 +158,5 @@ def color_hexagons():
 
 color_hexagons()
 # draw_hexagon()
-# draw_hexagon_with_axis()
-# color_single_hexagon()
+# draw_hexagon_with_axes()
+
